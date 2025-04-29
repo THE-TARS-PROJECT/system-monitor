@@ -3,4 +3,4 @@
 A system monitor for TARS DE based on vortexui
 
 
-![image](https://raw.githubusercontent.com/THE-TARS-PROJECT/system-monitor/refs/heads/main/image.png)
+![image]([https://raw.githubusercontent.com/THE-TARS-PROJECT/system-monitor/refs/heads/main/image.png](https://raw.githubusercontent.com/THE-TARS-PROJECT/system-monitor/refs/heads/main/screenshot%20.png))
