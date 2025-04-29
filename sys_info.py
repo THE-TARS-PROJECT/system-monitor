@@ -15,29 +15,44 @@ def get_sys_info() -> dict:
         "uptime": str(strftime("%H:%M:%S", gmtime(uptime)))
     }
 
-def get_processes() -> list:
-    processes_raw = listdir('/proc')
-    pids = []
-    processes = []
+def convert_size_units(value: int):
+    mb = value/1024
+    if mb >= 1024:
+        return f"{round(mb/1024, 3)} GB"
+    else:
+        return f"{round(mb, 3)} MB"
+    
 
-    for process in processes_raw:
-        if(process.isdigit()):
-            pids.append(process)
+def get_processes(uid) -> list:
+    processes_raw = listdir('/proc')
+    pids = [pid for pid in processes_raw if pid.isdigit()]
+    processes = []
 
     for pid in pids:
         try:
             with open(f'/proc/{pid}/status') as pid_info:
                 data = pid_info.readlines()
-                name = data[0].split(":")[1]
-                mem_usage = data[18].split(":")[1]
-                processes.append({
-                    "name": name.replace("\t", "").replace("\n", ""),
-                    "pid": pid.replace("\t", "").replace("\n", ""),
-                    "mem": mem_usage.replace("\t", "").replace("\n", "")
-                })
-        
+
+                name, mem_str, proc_uid = None, None, None
+
+                for line in data:
+                    if line.startswith("Uid:"):
+                        proc_uid = line.split(":", 1)[1].strip().split()[0]  # Real UID
+                    elif line.startswith("Name:"):
+                        name = line.split(":", 1)[1].strip()
+                    elif line.startswith("VmRSS:"):
+                        mem_str = line.split(":", 1)[1].strip().split()[0]
+
+                if proc_uid and int(proc_uid) == uid and name and mem_str:
+                    processes.append({
+                        "name": name,
+                        "pid": pid,
+                        "mem": convert_size_units(int(mem_str))
+                    })
+
         except FileNotFoundError:
-            pass
-            
+            continue
 
     return processes
+
+
