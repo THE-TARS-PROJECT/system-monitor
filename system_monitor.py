@@ -1,4 +1,5 @@
 import psutil
+from os import getuid
 from time import sleep
 from threading import Thread
 from PySide6.QtCore import Qt, QTimer
@@ -14,6 +15,7 @@ class SystemMonitorApp(FMainWindow):
         super(SystemMonitorApp, self).__init__()
 
         self.setMinimumSize(500, 600)
+        self.uid = getuid()
 
         self.setWindowTitle("System Resources")
         self.theme_engine = ThemeEngine()
@@ -67,7 +69,8 @@ class SystemMonitorApp(FMainWindow):
         self.theme_engine.get_table_widgets(self)
     
     def refresh_table(self):
-        procs = get_processes()
+        procs = get_processes(self.uid)
+        print(self.uid)
         self.processes_table.setRowCount(len(procs))
         for index, proc in enumerate(procs):
             self.processes_table.setItem(index, 0, QTableWidgetItem(proc['name']))
